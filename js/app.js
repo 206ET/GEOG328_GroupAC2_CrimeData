@@ -1,29 +1,28 @@
+// 1. Your Mapbox access token
 mapboxgl.accessToken = 'pk.eyJ1IjoiMjA2ZXQiLCJhIjoiY21oZHVlNGhsMDZvajJpb3JiYW44NDdkbCJ9.2t0kCjiMB6Mad8U9mEQfKQ';
 
-// 1. Create the map
+// 2. Create the map
 const map = new mapboxgl.Map({
-    container: 'map',
+    container: 'map',                    // div id in index.html
     style: 'mapbox://styles/mapbox/dark-v11',
-    center: [-122.33, 47.61], // Seattle
+    center: [-122.33, 47.61],           // Seattle
     zoom: 10
 });
 
-// 2. Add zoom + rotation controls
+// 3. Zoom + rotation controls
 map.addControl(new mapboxgl.NavigationControl(), 'top-right');
 
-
-// 3. Load data once map is ready
+// 4. When the map loads, add sources and layers
 map.on('load', () => {
+    console.log('Map is ready!');
 
-    console.log("Map Loaded!");
-
-    // --- Add your crime GeoJSON as a source ---
+    // ---- Crime GeoJSON source ----
     map.addSource('crimeData', {
         type: 'geojson',
-        data: 'MergedData.geojson'  
+        data: 'assets/MergedData.geojson'   
     });
 
-    // --- HEATMAP LAYER ---
+    // ---- Heatmap layer ----
     map.addLayer({
         id: 'crime-heat',
         type: 'heatmap',
@@ -37,7 +36,7 @@ map.on('load', () => {
         }
     });
 
-    // --- POINT LAYER ---
+    // ---- Point layer (shows when you zoom in) ----
     map.addLayer({
         id: 'crime-points',
         type: 'circle',
@@ -50,17 +49,17 @@ map.on('load', () => {
         }
     });
 
-    // --- POPUPS ---
+    // ---- Popups on click ----
     map.on('click', 'crime-points', (e) => {
         const props = e.features[0].properties;
 
         const popupHTML = `
-            <strong>${props["Primary Offense Description"]}</strong><br>
-            <em>${props["Crime Subcategory"]}</em><br><br>
-            <strong>Date:</strong> ${props["Occurred Date"]}<br>
-            <strong>Time:</strong> ${props["Occurred Time"]}<br>
-            <strong>Neighborhood:</strong> ${props["Neighborhood"]}<br>
-            <strong>Beat:</strong> ${props["Beat"]}
+            <strong>${props["Primary Offense Description"] || "Unknown offense"}</strong><br>
+            <em>${props["Crime Subcategory"] || ""}</em><br><br>
+            <strong>Date:</strong> ${props["Occurred Date"] || "N/A"}<br>
+            <strong>Time:</strong> ${props["Occurred Time"] || "N/A"}<br>
+            <strong>Neighborhood:</strong> ${props["Neighborhood"] || "N/A"}<br>
+            <strong>Beat:</strong> ${props["Beat"] || "N/A"}
         `;
 
         new mapboxgl.Popup()
@@ -69,7 +68,7 @@ map.on('load', () => {
             .addTo(map);
     });
 
-    // Change cursor on hover
+    // Change cursor on hover so points feel clickable
     map.on('mouseenter', 'crime-points', () => {
         map.getCanvas().style.cursor = 'pointer';
     });
@@ -77,5 +76,4 @@ map.on('load', () => {
     map.on('mouseleave', 'crime-points', () => {
         map.getCanvas().style.cursor = '';
     });
-
 });
