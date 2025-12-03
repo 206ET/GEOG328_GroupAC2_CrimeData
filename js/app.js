@@ -20,7 +20,7 @@ map.on('load', () => {
     // --- Add your crime GeoJSON as a source ---
     map.addSource('crimeData', {
         type: 'geojson',
-        data: 'crime_seattle_project_under25mb.geojson'
+        data: 'MergedData.geojson'   // <<< UPDATED FILE NAME
     });
 
     // --- HEATMAP LAYER ---
@@ -79,4 +79,3 @@ map.on('load', () => {
     });
 
 });
-
