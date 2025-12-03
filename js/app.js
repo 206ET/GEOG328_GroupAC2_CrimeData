@@ -3,23 +3,28 @@ mapboxgl.accessToken = 'pk.eyJ1IjoiMjA2ZXQiLCJhIjoiY21oZHVlNGhsMDZvajJpb3JiYW44N
 
 // 2. Create the map
 const map = new mapboxgl.Map({
-    container: 'map',                    // div id in index.html
+    container: 'map', // div id in index.html
     style: 'mapbox://styles/mapbox/dark-v11',
-    center: [-122.33, 47.61],           // Seattle
+    center: [-122.33, 47.61], // Seattle
     zoom: 10
 });
 
 // 3. Zoom + rotation controls
 map.addControl(new mapboxgl.NavigationControl(), 'top-right');
 
-// 4. When the map loads, add sources and layers
+// 4. Log any Mapbox errors (helps us debug if something breaks)
+map.on('error', (e) => {
+    console.error('Mapbox error:', e.error || e);
+});
+
+// 5. When the map loads, add sources and layers
 map.on('load', () => {
     console.log('Map is ready!');
 
     // ---- Crime GeoJSON source ----
     map.addSource('crimeData', {
         type: 'geojson',
-        data: 'assets/MergedData.geojson'   
+        data: 'https://206et.github.io/GEOG328_GroupAC2_CrimeData/assets/MergedData.geojson'
     });
 
     // ---- Heatmap layer ----
