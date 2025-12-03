@@ -20,7 +20,7 @@ map.on('load', () => {
     // --- Add your crime GeoJSON as a source ---
     map.addSource('crimeData', {
         type: 'geojson',
-        data: 'MergedData.geojson'   // <<< UPDATED FILE NAME
+        data: 'MergedData.geojson'  
     });
 
     // --- HEATMAP LAYER ---
