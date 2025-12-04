@@ -9,25 +9,25 @@ const map = new mapboxgl.Map({
     zoom: 10
 });
 
-// Zoom controls
+// Add zoom controls
 map.addControl(new mapboxgl.NavigationControl(), 'top-right');
 
-// When the map loads, pull in our crime data
+// When the map loads, fetch the crime data
 map.on('load', () => {
+    console.log("Map loaded");
 
-    // Load GeoJSON file from assets folder
     fetch('assets/MergedData.geojson')
         .then(res => res.json())
         .then(data => {
-            console.log('Loaded features:', data.features.length);
+            console.log("Loaded features:", data.features.length);
 
-            // 1) Add crime data as a source
+            // 1) Add source
             map.addSource('crime', {
                 type: 'geojson',
                 data: data
             });
 
-            // 2) Heatmap layer – shows crime density
+            // 2) Heatmap layer
             map.addLayer({
                 id: 'crime-heat',
                 type: 'heatmap',
@@ -41,7 +41,7 @@ map.on('load', () => {
                 }
             });
 
-            // 3) Point layer – individual crime dots
+            // 3) Point layer
             map.addLayer({
                 id: 'crime-points',
                 type: 'circle',
@@ -54,17 +54,18 @@ map.on('load', () => {
                 }
             });
 
-            // 4) Popups showing key info
+            // 4) Popups with context using NEW FIELD NAMES
             map.on('click', 'crime-points', (e) => {
                 const props = e.features[0].properties;
 
                 const html = `
-                    <strong>${props["Primary Offense Description"] || "Crime"}</strong><br>
-                    <em>${props["Crime Subcategory"] || ""}</em><br><br>
-                    <strong>Date:</strong> ${props["Occurred Date"] || "N/A"}<br>
-                    <strong>Time:</strong> ${props["Occurred Time"] || "N/A"}<br>
+                    <strong>${props["Offense Category"] || "Crime"}</strong><br>
+                    <em>${props["Offense Sub Category"] || ""}</em><br><br>
+                    <strong>Reported:</strong> ${props["Report DateTime"] || "N/A"}<br>
+                    <strong>Occurred:</strong> ${props["Offense Date"] || "N/A"}<br>
                     <strong>Neighborhood:</strong> ${props["Neighborhood"] || "N/A"}<br>
                     <strong>Beat:</strong> ${props["Beat"] || "N/A"}<br>
+                    <strong>Sector:</strong> ${props["Sector"] || "N/A"}<br>
                     <strong>Precinct:</strong> ${props["Precinct"] || "N/A"}
                 `;
 
@@ -78,11 +79,12 @@ map.on('load', () => {
             map.on('mouseenter', 'crime-points', () => {
                 map.getCanvas().style.cursor = 'pointer';
             });
+
             map.on('mouseleave', 'crime-points', () => {
                 map.getCanvas().style.cursor = '';
             });
         })
         .catch(err => {
-            console.error('GeoJSON load error:', err);
+            console.error("GeoJSON load error:", err);
         });
 });
