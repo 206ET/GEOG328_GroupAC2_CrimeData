@@ -23,7 +23,7 @@
   <header id="top-bar">
     <div class="brand">
       <h1>Seattle Crime Explorer</h1>
-      <p>Group AC2 · GEOG 328</p>
+      <p>Group AC2 · GEOG 328 · Autumn 2025</p>
     </div>
     <nav class="top-nav">
       <a
@@ -55,14 +55,33 @@
           </select>
         </div>
 
+        <!-- Neighborhood filter -->
+        <div class="control-group">
+          <label for="neighborhood-select">Neighborhood</label>
+          <select id="neighborhood-select">
+            <option value="all">All neighborhoods</option>
+          </select>
+        </div>
+
         <!-- Date range -->
         <div class="control-group">
           <label>Date Range</label>
-          <input type="date" id="start-date" />
-          <input type="date" id="end-date" />
+          <input type="date" id="start-date" placeholder="Start date" />
+          <input type="date" id="end-date" placeholder="End date" />
           <button id="apply-date-btn">Apply</button>
-          <p class="hint">Filters based on date — implemented.</p>
+          <button id="reset-filters-btn" class="secondary">Reset All</button>
         </div>
+      </section>
+
+      <!-- Statistics panel -->
+      <section class="panel">
+        <h2>Summary</h2>
+        <p id="summary-text">
+          Use the filters above to explore crime patterns across Seattle.
+          Zoom out to see overall hot spots as a heatmap, and zoom in to see
+          individual incidents as points. Click a point for more details.
+        </p>
+        <div id="stats-details" style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid #d1d5db; font-size: 0.85rem;"></div>
       </section>
 
       <!-- Legend -->
@@ -83,21 +102,10 @@
           </div>
         </div>
       </section>
-
-      <!-- Summary / instructions -->
-      <section class="panel">
-        <h2>Summary</h2>
-        <p id="summary-text">
-          Use the filters above to explore crime patterns across Seattle.
-          Zoom out to see overall hot spots as a heatmap, and zoom in to see
-          individual incidents as points. Click a point for more details.
-        </p>
-      </section>
     </aside>
 
     <!-- Map container -->
     <section id="map-container">
-      <!-- Mapbox will render into this div -->
       <div id="map"></div>
     </section>
   </main>
@@ -107,17 +115,131 @@
     <div class="content-section">
       <h2>About This Project</h2>
       <p>
-        **Insert Text Here**
+        The Seattle Crime Explorer is an interactive mapping application designed to make public safety data more accessible to Seattle residents and decision-makers. With recent increases in certain types of crime, understanding where and when incidents occur is crucial for community safety planning, urban policy, and personal security decisions.
       </p>
+      <p>
+        This application visualizes over 64,000 crime incidents reported to the Seattle Police Department, allowing users to explore patterns and trends across the city's neighborhoods and precincts. By combining interactive filtering with dual visualization modes—a heatmap for identifying geographic hotspots and point markers for examining individual incidents—the Explorer enables data-driven insights into public safety.
+      </p>
+      <h3>Key Features</h3>
+      <ul>
+        <li><strong>Crime Type Filtering:</strong> Isolate violent crimes, property crimes, or other offenses to see category-specific patterns</li>
+        <li><strong>Neighborhood Analysis:</strong> Compare crime rates and patterns across Seattle's 43+ distinct neighborhoods</li>
+        <li><strong>Temporal Filtering:</strong> Select custom date ranges to analyze seasonal trends, recent hotspots, or historical patterns</li>
+        <li><strong>Dual Visualization:</strong> Toggle between heatmap (density view) and point markers (incident detail view) by zooming in and out</li>
+        <li><strong>Interactive Details:</strong> Click any crime marker to view specific incident information including report number, date/time, neighborhood, and precinct</li>
+        <li><strong>Real-time Statistics:</strong> Automatic calculation of filtered crime counts, category breakdowns, and percentage distributions</li>
+      </ul>
+      <h3>Intended Audience</h3>
+      <ul>
+        <li>Seattle residents concerned about neighborhood safety</li>
+        <li>Prospective residents evaluating neighborhoods before moving to Seattle</li>
+        <li>Community organizations and neighborhood watch groups developing safety initiatives</li>
+        <li>Urban planners and policymakers allocating resources and developing crime prevention strategies</li>
+        <li>Real estate professionals and renters/buyers making location decisions</li>
+      </ul>
     </div>
   </section>
 
   <!-- Data & Methods section -->
   <section id="methods">
     <div class="content-section">
-      <h2>Data &amp; Methods</h2>
+      <h2>Data & Methods</h2>
+      
+      <h3>Dataset Description</h3>
       <p>
-        **Insert Text Here**
+        This application integrates three primary datasets to provide comprehensive crime analysis:
+      </p>
+      
+      <h4>1. Seattle Police Department Crime Data (2008–Present)</h4>
+      <p>
+        <strong>Source:</strong> <a href="https://data.seattle.gov/Public-Safety/SPD-Crime-Data-2008-Present/tazs-3rd5" target="_blank">data.seattle.gov</a><br/>
+        This dataset contains all recorded crimes reported to the Seattle Police Department from January 2008 through the present day. The current dataset includes 64,593 crime incidents with the following attributes:
+      </p>
+      <ul>
+        <li><strong>Report Number:</strong> Unique identifier for each incident</li>
+        <li><strong>Offense Date & Time:</strong> When the crime occurred (in 24-hour format)</li>
+        <li><strong>Report Date & Time:</strong> When the crime was reported</li>
+        <li><strong>Offense Category:</strong> Primary classification (Violent Crime, Property Crime, or All Other)</li>
+        <li><strong>Offense Sub-Category:</strong> Detailed crime type (e.g., Burglary, Larceny-Theft, Assault)</li>
+        <li><strong>Location Data:</strong> Geographic coordinates (longitude/latitude), neighborhood, precinct, sector, and beat</li>
+      </ul>
+      
+      <h4>2. Seattle Neighborhood Boundaries</h4>
+      <p>
+        <strong>Source:</strong> <a href="https://data-seattlecitygis.opendata.arcgis.com/datasets/SeattleCityGIS::neighborhood-map-atlas-neighborhoods" target="_blank">SeattleCityGIS Open Data</a><br/>
+        This geographic dataset provides polygon boundaries for all 43 neighborhood areas in Seattle, enabling spatial analysis and allowing crime incidents to be associated with their respective neighborhoods.
+      </p>
+      
+      <h4>3. Supplementary Crime Dataset</h4>
+      <p>
+        <strong>Source:</strong> <a href="https://www.kaggle.com/datasets/adoumtaiga/crime-data-set" target="_blank">Kaggle</a><br/>
+        This dataset provides additional records of Seattle crime incidents with location coordinates, used to supplement and validate the primary SPD dataset.
+      </p>
+
+      <h3>Data Processing & Methodology</h3>
+      <p>
+        <strong>Data Integration:</strong> The datasets were merged using spatial joins and common identifiers. Geographic coordinates were standardized and validated against the neighborhood boundaries to ensure accurate spatial association.
+      </p>
+      
+      <p>
+        <strong>Date/Time Normalization:</strong> Offense dates were parsed from multiple formats (ISO 8601, MM/DD/YYYY, and text-based formats) and converted to Unix timestamps (milliseconds since epoch) to enable reliable temporal filtering and analysis.
+      </p>
+      
+      <p>
+        <strong>Crime Categorization:</strong> Crimes are classified into three primary categories based on SPD classifications:
+      </p>
+      <ul>
+        <li><strong>Violent Crime (5.4%):</strong> Includes homicides, assaults, robberies, and rape (3,479 incidents)</li>
+        <li><strong>Property Crime (55.7%):</strong> Includes burglary, larceny-theft, and motor vehicle theft (35,972 incidents)</li>
+        <li><strong>All Other (38.9%):</strong> Includes narcotics, fraud, trespass, and other offenses (25,142 incidents)</li>
+      </ul>
+
+      <h3>Visualization Design</h3>
+      <p>
+        <strong>Heatmap Layer:</strong> Displays kernel density estimation of crime incidents, with intensity and radius interpolated based on zoom level. This visualization is optimized for identifying geographic hotspots and patterns at lower zoom levels (10–14).
+      </p>
+      
+      <p>
+        <strong>Point Markers:</strong> Individual crime incidents rendered as circles, color-coded by offense category. Circle size and opacity scale with zoom level to prevent marker congestion while maintaining visibility of incident density. The marker-to-heatmap transition is automatic as users zoom in and out.
+      </p>
+      
+      <p>
+        <strong>Color Coding:</strong> 
+      </p>
+      <ul>
+        <li><strong style="color: #b91c1c;">Red (#b91c1c):</strong> Violent crimes</li>
+        <li><strong style="color: #1d4ed8;">Blue (#1d4ed8):</strong> Property crimes</li>
+        <li><strong style="color: #9ca3af;">Gray (#9ca3af):</strong> All other offenses</li>
+      </ul>
+
+      <h3>Key Statistics</h3>
+      <ul>
+        <li><strong>Total Crimes:</strong> 64,593 incidents</li>
+        <li><strong>Most Common Crime Type:</strong> Larceny-Theft (22,653 incidents, 35.1%)</li>
+        <li><strong>Neighborhoods with Highest Crime:</strong> Capitol Hill (8.4%), Downtown Commercial (5.6%), Queen Anne (5.4%)</li>
+        <li><strong>Precinct with Highest Crime:</strong> North Precinct (30.6% of incidents)</li>
+        <li><strong>Temporal Coverage:</strong> 2008–Present (most recent data: November 2024)</li>
+      </ul>
+
+      <h3>Technical Stack</h3>
+      <ul>
+        <li><strong>Frontend Framework:</strong> Mapbox GL JS v3.2.0 for interactive web mapping</li>
+        <li><strong>Data Format:</strong> GeoJSON for efficient client-side rendering and filtering</li>
+        <li><strong>Styling:</strong> Custom CSS with responsive design for desktop and mobile devices</li>
+        <li><strong>Interactivity:</strong> Client-side filtering for real-time performance (no server requests required after initial load)</li>
+      </ul>
+
+      <h3>Limitations & Considerations</h3>
+      <ul>
+        <li><strong>Reporting Bias:</strong> Crime data reflects reported incidents only. Many crimes go unreported, and reporting rates vary by neighborhood and offense type.</li>
+        <li><strong>Data Completeness:</strong> Some older records may have incomplete or missing geographic coordinates, limiting their inclusion in spatial analysis.</li>
+        <li><strong>Temporal Lag:</strong> Crime data is typically reported within hours to days of occurrence, but official statistics may lag by several weeks.</li>
+        <li><strong>Privacy Considerations:</strong> While crime data is public, this tool is designed to identify patterns and trends rather than pinpoint specific addresses or individuals.</li>
+      </ul>
+
+      <h3>Data Sources & Attribution</h3>
+      <p>
+        This project uses publicly available data from the City of Seattle Open Data portal and Seattle Police Department. All data is provided as-is under the City of Seattle's open data license. Map tiles and styling provided by Mapbox.
       </p>
     </div>
   </section>
@@ -125,8 +247,7 @@
   <!-- Footer -->
   <footer id="footer">
     <p>
-      GEOG 328 · Autumn 2025 · Group AC2 — Yeabkal S · Emmanuel T · Kevin D ·
-      Amartya C · Girum W
+      GEOG 328 · Autumn 2025 · Group AC2 — Yeabkal S · Emmanuel T · Kevin D · Amartya C · Girum W
     </p>
   </footer>
 </body>
