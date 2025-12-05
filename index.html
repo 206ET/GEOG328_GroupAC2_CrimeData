@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Seattle Crime Explorer | Group AC2</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="css\style.css" />
+  <!-- Mapbox GL JS -->
+  <link
+    href="https://api.mapbox.com/mapbox-gl-js/v3.2.0/mapbox-gl.css"
+    rel="stylesheet"
+  />
+  <script src="https://api.mapbox.com/mapbox-gl-js/v3.2.0/mapbox-gl.js"></script>
+
+  <!-- Script -->
+  <script src="js\app.js" defer></script>
+</head>
+<body>
+  <!-- Top Header Bar -->
+  <header id="top-bar">
+    <div class="brand">
+      <h1>Seattle Crime Explorer</h1>
+      <p>Group AC2 · GEOG 328 · Autumn 2025</p>
+    </div>
+    <nav class="top-nav">
+      <a href="index.html">Map</a>
+      <a href="about.html">About</a>
+      <a href="data.html">Data</a>
+      <a
+        href="https://github.com/206ET/GEOG328_GroupAC2_CrimeData"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        GitHub Repo
+      </a>
+  </nav>
+  </header>
+
+  <!-- Main layout: sidebar + map -->
+  <main id="layout">
+    <!-- Sidebar -->
+    <aside id="sidebar">
+      <!-- Filters panel -->
+      <section class="panel">
+        <h2>Filters</h2>
+
+        <!-- Crime type filter -->
+        <div class="control-group">
+          <label for="crime-type-select">Crime Type</label>
+          <select id="crime-type-select">
+            <option value="all">All types</option>
+            <option value="VIOLENT CRIME">Violent crime</option>
+            <option value="PROPERTY CRIME">Property crime</option>
+            <option value="ALL OTHER">All other</option>
+          </select>
+        </div>
+
+        <!-- Neighborhood filter -->
+        <div class="control-group">
+          <label for="neighborhood-select">Neighborhood</label>
+          <select id="neighborhood-select">
+            <option value="all">All neighborhoods</option>
+          </select>
+        </div>
+
+        <!-- Date range -->
+        <div class="control-group">
+          <label>Date Range</label>
+          <input type="date" id="start-date" placeholder="Start date" />
+          <input type="date" id="end-date" placeholder="End date" />
+          <button id="apply-date-btn">Apply</button>
+          <button id="reset-filters-btn" class="secondary">Reset All</button>
+        </div>
+      </section>
+
+      <!-- Statistics panel -->
+      <section class="panel">
+        <h2>Summary</h2>
+        <p id="summary-text">
+          Use the filters above to explore crime patterns across Seattle.
+          Zoom out to see overall hot spots as a heatmap, and zoom in to see
+          individual incidents as points. Click a point for more details.
+        </p>
+        <div id="stats-details" style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid #d1d5db; font-size: 0.85rem;"></div>
+      </section>
+
+      <!-- Legend -->
+      <section class="panel">
+        <h2>Legend</h2>
+        <div id="legend">
+          <div class="legend-item">
+            <span class="legend-color legend-violent"></span>
+            <span>Violent crime</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-color legend-property"></span>
+            <span>Property crime</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-color legend-other"></span>
+            <span>All other</span>
+          </div>
+        </div>
+      </section>
+    </aside>
+
+    <!-- Map container -->
+    <section id="map-container">
+      <div id="map"></div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer id="footer">
+    <p>
+      GEOG 328 · Autumn 2025 · Group AC2 — Yeabkal S · Emmanuel T · Kevin D · Amartya C · Girum W
+    </p>
+  </footer>
+</body>
+</html>
