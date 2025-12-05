@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Data & Methods | Seattle Crime Explorer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="css\style.css" />
+</head>
+<body>
+
+<header id="top-bar">
+  <div class="brand">
+    <h1>Seattle Crime Explorer</h1>
+    <p>Group AC2 · GEOG 328 · Autumn 2025</p>
+  </div>
+  <nav class="top-nav">
+    <a href="index.html">Map</a>
+    <a href="about.html">About</a>
+    <a href="data.html">Data</a>
+    <a
+      href="https://github.com/206ET/GEOG328_GroupAC2_CrimeData"
+      target="_blank"
+      rel="noopener noreferrer"
+    >GitHub Repo</a>
+  </nav>
+</header>
+
+<section class="content-section">
+  <h2>Data & Methods</h2>
+
+  <h3>Dataset Description</h3>
+  <p>
+    This application integrates three main datasets to provide a complete view
+    of Seattle crime patterns.
+  </p>
+
+  <h4>1. SPD Crime Data (2008–Present)</h4>
+  <p>
+    <strong>Source:</strong> Seattle Open Data Portal<br>
+    Contains report numbers, timestamps, categories, subtypes, and coordinates.
+  </p>
+
+  <h4>2. Seattle Neighborhood Boundaries</h4>
+  <p>Polygon dataset used to map crimes to neighborhoods.</p>
+
+  <h4>3. Kaggle Crime Dataset</h4>
+  <p>Used to supplement missing or incomplete SPD entries.</p>
+
+  <h3>Data Processing</h3>
+  <ul>
+    <li>Merged datasets using spatial joins</li>
+    <li>Normalized date formats into numeric timestamps</li>
+    <li>Cleaned missing coordinates</li>
+    <li>Standardized category labels</li>
+  </ul>
+
+  <h3>Visualization Design</h3>
+  <ul>
+    <li>Heatmap for macro-level density analysis</li>
+    <li>Point markers with category colors</li>
+    <li>Popup details and hover interactions</li>
+    <li>Sidebar filters with real-time updates</li>
+  </ul>
+
+  <h3>Key Stats</h3>
+  <ul>
+    <li><strong>Total crimes:</strong> 64,593</li>
+    <li><strong>Property crimes:</strong> ~56%</li>
+    <li><strong>Violent crimes:</strong> ~5%</li>
+    <li><strong>Top neighborhoods:</strong> Capitol Hill, Downtown, Queen Anne</li>
+  </ul>
+
+  <h3>Limitations</h3>
+  <ul>
+    <li>Reporting bias</li>
+    <li>Missing or inaccurate coordinates</li>
+    <li>Temporal delays in report updates</li>
+  </ul>
+
+</section>
+
+<footer id="footer">
+  <p>GEOG 328 · Autumn 2025 · Group AC2</p>
+</footer>
+
+</body>
+</html>
