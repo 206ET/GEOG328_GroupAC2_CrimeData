@@ -25,16 +25,135 @@ function buildFilter() {
     filters.push(["==", ["get", "Offense Category"], state.crimeType]);
   }
 
+  // Date filters
+  // We check a couple of likely date property names that may exist
+  // in the GeoJSON produced by our cleaning pipeline. The input
+  // from the date <input> will be an ISO date string: "YYYY-MM-DD".
+  // This code assumes the date properties in the GeoJSON are also
+  // formatted as ISO date-only strings (or start with YYYY-MM-DD).
+  if (state.startDate) {
+    const start = state.startDate;
+    // allow either Offense Date or Occurred Date
+    const startAny = [
+      "any",
+      [">=", ["get", "Offense Date"], start],
+      [">=", ["get", "Occurred Date"], start]
+    ];
+    filters.push(startAny);
+  }
+
+  if (state.endDate) {
+    const end = state.endDate;
+    const endAny = [
+      "any",
+      ["<=", ["get", "Offense Date"], end],
+      ["<=", ["get", "Occurred Date"], end]
+    ];
+    filters.push(endAny);
+  }
+
+  return filters;
+
 }
 
 map.on("load", () => {
   console.log("map style loaded");
 
   //Source Code
+  // Add an empty source first, then fetch + normalize dates to numeric `ts` property
   map.addSource("crime", {
     type: "geojson",
-    data: "assets/MergedData.geojson"
+    data: { type: "FeatureCollection", features: [] }
   });
+
+  // Helper to parse many possible date string formats into epoch ms
+  function parseDateToTs(s) {
+    if (s === null || s === undefined) return NaN;
+    const str = String(s).trim();
+    if (!str) return NaN;
+
+    // Quick ISO date at start: YYYY-MM-DD
+    let m = str.match(/(\d{4}-\d{2}-\d{2})/);
+    if (m) {
+      const t = Date.parse(m[1] + "T00:00:00");
+      if (!isNaN(t)) return t;
+    }
+
+    // Try direct parse
+    let t = Date.parse(str);
+    if (!isNaN(t)) return t;
+
+    // Pattern like: 2024 Nov 13 08:34:00 PM -> convert to "Nov 13 2024 08:34:00 PM"
+    m = str.match(/^(\d{4})\s+([A-Za-z]+)\s+(\d{1,2})\s+(\d{1,2}:\d{2}:\d{2})\s*(AM|PM)?$/i);
+    if (m) {
+      const year = m[1];
+      const monDay = `${m[2]} ${m[3]}`;
+      const time = m[4];
+      const ampm = m[5] || "";
+      const reform = `${monDay} ${year} ${time} ${ampm}`.trim();
+      t = Date.parse(reform);
+      if (!isNaN(t)) return t;
+    }
+
+    // Fallback: try to find any YYYY/MM/DD or MM/DD/YYYY
+    m = str.match(/(\d{4})[\/-](\d{1,2})[\/-](\d{1,2})/);
+    if (m) {
+      const iso = `${m[1]}-${String(m[2]).padStart(2, "0")}-${String(m[3]).padStart(2, "0")}`;
+      t = Date.parse(iso + "T00:00:00");
+      if (!isNaN(t)) return t;
+    }
+
+    // Give up
+    return NaN;
+  }
+
+  // Fetch the GeoJSON, normalize date fields into numeric `ts` (ms since epoch)
+  fetch("assets/MergedData.geojson")
+    .then((r) => r.json())
+    .then((data) => {
+      if (data && Array.isArray(data.features)) {
+        data.features.forEach((f) => {
+          const props = f.properties || {};
+
+          // try multiple likely date property names
+          const dateCandidates = [
+            props["ts"] ? props["ts"] : null,
+            props["Offense Date"],
+            props["OffenseDate"],
+            props["Occurred Date"],
+            props["OccurredDate"],
+            props["Report DateTime"],
+            props["Report Date"]
+          ];
+
+          let ts = NaN;
+          for (const c of dateCandidates) {
+            if (c === null || c === undefined) continue;
+            const parsed = parseDateToTs(c);
+            if (!isNaN(parsed)) {
+              ts = parsed;
+              break;
+            }
+          }
+
+          // If we couldn't parse any date, but there is a property 'date' or 'Date', try those
+          if (isNaN(ts)) {
+            const extra = props["date"] || props["Date"] || props["Occurred DateTime"];
+            ts = parseDateToTs(extra);
+          }
+
+          // Attach numeric timestamp and an ISO date for convenience
+          props.ts = isNaN(ts) ? null : ts;
+          props.date_iso = props.ts ? new Date(props.ts).toISOString().slice(0, 10) : null;
+          f.properties = props;
+        });
+      }
+
+      // set the normalized data back to the map source
+      const src = map.getSource("crime");
+      if (src) src.setData(data);
+    })
+    .catch((err) => console.error("Failed to load/normalize crime GeoJSON:", err));
 
   map.addLayer({
     id: "crime-points",
@@ -155,6 +274,21 @@ function setupUI() {
     applyDateBtn.addEventListener("click", () => {
       state.startDate = startInput?.value || null;
       state.endDate = endInput?.value || null;
+
+      // convert to epoch ms so comparisons are numeric and reliable
+      if (state.startDate) {
+        // start of day
+        state.startTs = Date.parse(state.startDate + "T00:00:00");
+      } else {
+        state.startTs = null;
+      }
+
+      if (state.endDate) {
+        // end of day
+        state.endTs = Date.parse(state.endDate + "T23:59:59");
+      } else {
+        state.endTs = null;
+      }
       applyFilterToMap();
     });
   }
