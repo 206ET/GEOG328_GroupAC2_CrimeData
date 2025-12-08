@@ -26,7 +26,7 @@ Overall, the goal is to deliver a **high-quality**, **usable**, and **educationa
 # Application URL
 
 📍 **Live Website:**  
-
+https://206et.github.io/GEOG328_GroupAC2_CrimeData/
 ---
 
 # Main Functions
